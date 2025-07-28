@@ -1,0 +1,179 @@
+{
+  "id": "sample-workflow-001",
+  "name": "示例登录工作流",
+  "description": "演示登录流程的示例工作流",
+  "version": "1.0.0",
+  "created_at": "2025-07-27T22:00:00Z",
+  "nodes": [
+    {
+      "id": "start-1",
+      "type": "start",
+      "position": { "x": 100, "y": 100 },
+      "data": {
+        "label": "开始",
+        "initialUrl": "https://example.com/login"
+      }
+    },
+    {
+      "id": "action-1",
+      "type": "action",
+      "position": { "x": 300, "y": 100 },
+      "data": {
+        "label": "输入用户名",
+        "actionType": "type",
+        "selector": "#username",
+        "text": "testuser",
+        "clearFirst": true
+      }
+    },
+    {
+      "id": "action-2",
+      "type": "action",
+      "position": { "x": 500, "y": 100 },
+      "data": {
+        "label": "输入密码",
+        "actionType": "type",
+        "selector": "#password",
+        "text": "testpass",
+        "clearFirst": true
+      }
+    },
+    {
+      "id": "action-3",
+      "type": "action",
+      "position": { "x": 700, "y": 100 },
+      "data": {
+        "label": "点击登录按钮",
+        "actionType": "click",
+        "selector": "#login-button",
+        "waitTime": 1
+      }
+    },
+    {
+      "id": "wait-1",
+      "type": "action",
+      "position": { "x": 900, "y": 100 },
+      "data": {
+        "label": "等待页面加载",
+        "actionType": "wait",
+        "waitType": "time",
+        "value": 3
+      }
+    },
+    {
+      "id": "condition-1",
+      "type": "condition",
+      "position": { "x": 1100, "y": 100 },
+      "data": {
+        "label": "检查登录状态",
+        "conditionType": "element_exists",
+        "selector": "#dashboard",
+        "checkType": "exists"
+      }
+    },
+    {
+      "id": "action-success",
+      "type": "action",
+      "position": { "x": 1300, "y": 50 },
+      "data": {
+        "label": "登录成功截图",
+        "actionType": "screenshot",
+        "description": "登录成功页面",
+        "fullPage": false
+      }
+    },
+    {
+      "id": "action-failure",
+      "type": "action",
+      "position": { "x": 1300, "y": 150 },
+      "data": {
+        "label": "登录失败截图",
+        "actionType": "screenshot",
+        "description": "登录失败页面",
+        "fullPage": false
+      }
+    },
+    {
+      "id": "end-success",
+      "type": "end",
+      "position": { "x": 1500, "y": 50 },
+      "data": {
+        "label": "成功结束",
+        "finalScreenshot": false
+      }
+    },
+    {
+      "id": "end-failure",
+      "type": "end",
+      "position": { "x": 1500, "y": 150 },
+      "data": {
+        "label": "失败结束",
+        "finalScreenshot": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "start-1",
+      "target": "action-1",
+      "type": "default"
+    },
+    {
+      "id": "e2",
+      "source": "action-1",
+      "target": "action-2",
+      "type": "default"
+    },
+    {
+      "id": "e3",
+      "source": "action-2",
+      "target": "action-3",
+      "type": "default"
+    },
+    {
+      "id": "e4",
+      "source": "action-3",
+      "target": "wait-1",
+      "type": "default"
+    },
+    {
+      "id": "e5",
+      "source": "wait-1",
+      "target": "condition-1",
+      "type": "default"
+    },
+    {
+      "id": "e6",
+      "source": "condition-1",
+      "target": "action-success",
+      "type": "conditional",
+      "sourceHandle": "true"
+    },
+    {
+      "id": "e7",
+      "source": "condition-1",
+      "target": "action-failure",
+      "type": "conditional",
+      "sourceHandle": "false"
+    },
+    {
+      "id": "e8",
+      "source": "action-success",
+      "target": "end-success",
+      "type": "default"
+    },
+    {
+      "id": "e9",
+      "source": "action-failure",
+      "target": "end-failure",
+      "type": "default"
+    }
+  ],
+  "metadata": {
+    "author": "System",
+    "tags": ["login", "authentication", "demo"],
+    "estimated_duration": 30,
+    "complexity": "simple"
+  }
+}

@@ -1,0 +1,23 @@
+# Laravel任务调度
+* * * * * www-data cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1
+
+# 系统维护任务
+0 2 * * * www-data cd /var/www/html && php artisan system:cleanup >> /var/www/html/storage/logs/cleanup.log 2>&1
+
+# 性能监控
+*/5 * * * * www-data cd /var/www/html && php artisan monitor:performance --alert >> /var/www/html/storage/logs/monitor.log 2>&1
+
+# 浏览器实例健康检查
+*/10 * * * * www-data cd /var/www/html && php artisan browser:health-check >> /var/www/html/storage/logs/browser-health.log 2>&1
+
+# 数据库备份（每天凌晨3点）
+0 3 * * * www-data cd /var/www/html && php artisan backup:database >> /var/www/html/storage/logs/backup.log 2>&1
+
+# 日志清理（每周日凌晨4点）
+0 4 * * 0 www-data cd /var/www/html && php artisan log:clear --days=30 >> /var/www/html/storage/logs/log-cleanup.log 2>&1
+
+# Cookie清理（每天凌晨1点）
+0 1 * * * www-data cd /var/www/html && php artisan cookie:cleanup >> /var/www/html/storage/logs/cookie-cleanup.log 2>&1
+
+# 每日报告（每天上午9点）
+0 9 * * * www-data cd /var/www/html && php artisan report:daily >> /var/www/html/storage/logs/daily-report.log 2>&1

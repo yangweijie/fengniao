@@ -1,0 +1,176 @@
+version: '3.8'
+
+services:
+  # 应用服务
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fengniao-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./storage/logs:/var/www/html/storage/logs
+      - ./storage/app/screenshots:/var/www/html/storage/app/screenshots
+    networks:
+      - fengniao-network
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=mysql
+      - DB_DATABASE=fengniao
+      - DB_USERNAME=fengniao
+      - DB_PASSWORD=fengniao_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=redis
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+
+  # Nginx Web服务器
+  nginx:
+    image: nginx:alpine
+    container_name: fengniao-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/sites/:/etc/nginx/sites-available
+      - ./docker/nginx/ssl/:/etc/nginx/ssl
+    networks:
+      - fengniao-network
+    depends_on:
+      - app
+
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: fengniao-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: fengniao
+      MYSQL_USER: fengniao
+      MYSQL_PASSWORD: fengniao_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - fengniao-network
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: fengniao-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - fengniao-network
+
+  # 队列工作进程
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fengniao-queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./storage/logs:/var/www/html/storage/logs
+    networks:
+      - fengniao-network
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=production
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+      - QUEUE_CONNECTION=redis
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+
+  # 任务调度器
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fengniao-scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./storage/logs:/var/www/html/storage/logs
+    networks:
+      - fengniao-network
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=production
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    command: php artisan schedule:work
+
+  # 监控服务 (可选)
+  monitoring:
+    image: prom/prometheus:latest
+    container_name: fengniao-monitoring
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - fengniao-network
+    profiles:
+      - monitoring
+
+  # Grafana仪表板 (可选)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fengniao-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - fengniao-network
+    profiles:
+      - monitoring
+
+networks:
+  fengniao-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
