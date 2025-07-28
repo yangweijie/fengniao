@@ -72,12 +72,18 @@ class ChromeDriverManager
 
     public function isRunning(): bool
     {
-        if (!$this->isRunning) {
-            return false;
+        // 首先检查端口是否被占用（无论内部状态如何）
+        $portInUse = $this->isPortInUse($this->port);
+
+        if ($portInUse) {
+            // 如果端口被占用，更新内部状态
+            $this->isRunning = true;
+            return true;
         }
-        
-        // 检查端口是否仍在使用
-        return $this->isPortInUse($this->port);
+
+        // 如果端口没有被占用，更新内部状态
+        $this->isRunning = false;
+        return false;
     }
 
     public function getStatus(): array

@@ -74,12 +74,37 @@ class TaskLogResource extends Resource
                     ->limit(100)
                     ->searchable(),
 
-                Tables\Columns\IconColumn::make('screenshot_path')
-                    ->label('截图')
-                    ->boolean()
-                    ->getStateUsing(fn ($record) => !empty($record->screenshot_path))
-                    ->trueIcon('heroicon-o-camera')
-                    ->falseIcon('heroicon-o-minus'),
+                Tables\Columns\ImageColumn::make('screenshot_path')
+                    ->label('截图预览')
+                    ->getStateUsing(function ($record) {
+                        return $record->screenshot_path ? route('screenshot.view', $record->screenshot_path) : null;
+                    })
+                    ->size(64)
+                    ->square()
+                    ->defaultImageUrl('data:image/svg+xml;base64,' . base64_encode('
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"/>
+                        </svg>
+                    '))
+                    ->action(
+                        Tables\Actions\Action::make('preview_screenshot')
+                            ->modalHeading('截图预览')
+                            ->modalContent(function ($record) {
+                                if (!$record->screenshot_path) {
+                                    return view('filament.components.no-screenshot');
+                                }
+                                return view('filament.components.screenshot-preview', [
+                                    'screenshotUrl' => route('screenshot.view', $record->screenshot_path),
+                                    'filename' => $record->screenshot_path
+                                ]);
+                            })
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('关闭')
+                            ->modalWidth('5xl')
+                            ->visible(fn ($record) => !empty($record->screenshot_path))
+                    )
+                    ->sortable(false)
+                    ->searchable(false),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('创建时间')
@@ -117,10 +142,26 @@ class TaskLogResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\Action::make('view_screenshot')
-                    ->label('查看截图')
-                    ->icon('heroicon-o-camera')
+                Tables\Actions\Action::make('preview_screenshot')
+                    ->label('预览截图')
+                    ->icon('heroicon-o-eye')
                     ->color('info')
+                    ->visible(fn ($record) => !empty($record->screenshot_path))
+                    ->modalHeading('截图预览')
+                    ->modalContent(function ($record) {
+                        return view('filament.components.screenshot-preview', [
+                            'screenshotUrl' => route('screenshot.view', $record->screenshot_path),
+                            'filename' => $record->screenshot_path
+                        ]);
+                    })
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('关闭')
+                    ->modalWidth('5xl'),
+
+                Tables\Actions\Action::make('view_screenshot')
+                    ->label('新窗口打开')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->color('gray')
                     ->visible(fn ($record) => !empty($record->screenshot_path))
                     ->url(fn ($record) => route('screenshot.view', $record->screenshot_path))
                     ->openUrlInNewTab(),

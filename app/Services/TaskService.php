@@ -74,7 +74,7 @@ class TaskService
     public function executeTask(int $id): TaskExecution
     {
         $task = Task::findOrFail($id);
-        
+
         // 创建执行记录
         $execution = TaskExecution::create([
             'task_id' => $task->id,
@@ -82,9 +82,9 @@ class TaskService
             'start_time' => now()
         ]);
 
-        // 这里后续会实现具体的执行逻辑
-        // 现在只是创建执行记录
-        
+        // 分发队列任务
+        \App\Jobs\ExecuteTaskJob::dispatch($task);
+
         return $execution;
     }
 

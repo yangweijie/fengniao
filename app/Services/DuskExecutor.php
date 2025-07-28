@@ -110,12 +110,12 @@ class DuskExecutor
 
                 $screenshotCount++;
 
-                // 使用LogManager捕获截图
-                $filename = $duskExecutor->logManager->captureScreenshot($execution, $tabSession->driver, $description);
+                // 使用公共方法捕获截图
+                $filename = $duskExecutor->captureScreenshot($execution, $tabSession->driver, $description);
 
                 if ($filename) {
                     $screenshots[] = $filename;
-                    $duskExecutor->log($execution, 'info', "截图: {$description}", null, $filename);
+                    $duskExecutor->logScreenshot($execution, $description, $filename);
                 }
 
                 return $this;
@@ -196,5 +196,15 @@ class DuskExecutor
     protected function log(TaskExecution $execution, string $level, string $message, ?array $context = null, ?string $screenshotPath = null): void
     {
         $this->logManager->log($execution, $level, $message, $context, $screenshotPath);
+    }
+
+    public function captureScreenshot(TaskExecution $execution, $driver, string $description = ''): ?string
+    {
+        return $this->logManager->captureScreenshot($execution, $driver, $description);
+    }
+
+    public function logScreenshot(TaskExecution $execution, string $description, string $filename): void
+    {
+        $this->log($execution, 'info', "截图: {$description}", null, $filename);
     }
 }

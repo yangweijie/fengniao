@@ -284,7 +284,7 @@ class BrowserInstanceWrapper
             // 配置Chrome选项
             $options = new ChromeOptions();
             $options->addArguments([
-                '--headless', // 无头模式
+                // '--headless', // 无头模式 - 已禁用以便调试
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',

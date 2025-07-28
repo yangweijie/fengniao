@@ -13,7 +13,7 @@ use Exception;
 
 class LogManager
 {
-    protected string $screenshotDisk = 'local';
+    protected string $screenshotDisk = 'public';
     protected string $screenshotPath = 'screenshots';
     protected int $maxLogRetentionDays = 30;
 
@@ -47,13 +47,13 @@ class LogManager
     {
         try {
             $filename = $this->generateScreenshotFilename($execution, $description);
-            $fullPath = storage_path("app/{$this->screenshotPath}/{$filename}");
+            $path = "{$this->screenshotPath}/{$filename}";
 
             // 确保目录存在
-            $directory = dirname($fullPath);
-            if (!file_exists($directory)) {
-                mkdir($directory, 0755, true);
-            }
+            Storage::disk($this->screenshotDisk)->makeDirectory($this->screenshotPath);
+
+            // 获取完整的文件系统路径用于WebDriver
+            $fullPath = Storage::disk($this->screenshotDisk)->path($path);
 
             // 截图
             $driver->takeScreenshot($fullPath);
@@ -64,7 +64,9 @@ class LogManager
             Log::info("截图已保存", [
                 'execution_id' => $execution->id,
                 'filename' => $filename,
-                'description' => $description
+                'description' => $description,
+                'path' => $path,
+                'url' => Storage::disk($this->screenshotDisk)->url($path)
             ]);
 
             return $filename;
@@ -159,7 +161,7 @@ class LogManager
     public function getScreenshotUrl(string $filename): ?string
     {
         $path = "{$this->screenshotPath}/{$filename}";
-        
+
         if (Storage::disk($this->screenshotDisk)->exists($path)) {
             return Storage::disk($this->screenshotDisk)->url($path);
         }

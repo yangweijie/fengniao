@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蜂鸟自动化平台 - 测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .search-box {
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e8;
+            border-radius: 5px;
+            display: none;
+        }
+        .info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐦 蜂鸟自动化平台测试页面</h1>
+        
+        <div class="info">
+            <h3>页面信息</h3>
+            <p><strong>当前时间:</strong> <span id="current-time"></span></p>
+            <p><strong>页面URL:</strong> <span id="page-url"></span></p>
+            <p><strong>用户代理:</strong> <span id="user-agent"></span></p>
+        </div>
+
+        <div class="search-box">
+            <h3>搜索测试</h3>
+            <input type="text" id="search-input" placeholder="请输入搜索关键词..." value="蜂鸟自动化平台">
+            <button onclick="performSearch()">搜索</button>
+        </div>
+
+        <div id="search-result" class="result">
+            <h4>搜索结果</h4>
+            <p>您搜索的关键词是: <strong id="search-term"></strong></p>
+            <p>搜索时间: <strong id="search-time"></strong></p>
+        </div>
+
+        <div class="info">
+            <h3>测试说明</h3>
+            <ul>
+                <li>这是一个本地测试页面，用于验证浏览器自动化功能</li>
+                <li>页面包含基本的DOM元素，便于Dusk脚本测试</li>
+                <li>可以测试元素查找、文本输入、点击等操作</li>
+                <li>无需网络连接，避免网络超时问题</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 更新页面信息
+        function updatePageInfo() {
+            document.getElementById('current-time').textContent = new Date().toLocaleString('zh-CN');
+            document.getElementById('page-url').textContent = window.location.href;
+            document.getElementById('user-agent').textContent = navigator.userAgent;
+        }
+
+        // 执行搜索
+        function performSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchTerm = searchInput.value;
+            const resultDiv = document.getElementById('search-result');
+            
+            document.getElementById('search-term').textContent = searchTerm;
+            document.getElementById('search-time').textContent = new Date().toLocaleString('zh-CN');
+            
+            resultDiv.style.display = 'block';
+        }
+
+        // 页面加载完成后更新信息
+        window.onload = function() {
+            updatePageInfo();
+            // 每秒更新时间
+            setInterval(function() {
+                document.getElementById('current-time').textContent = new Date().toLocaleString('zh-CN');
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

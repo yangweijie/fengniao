@@ -37,12 +37,27 @@ class ExecuteTaskJob implements ShouldQueue
     {
         Log::info("开始执行任务: {$this->task->name}");
 
-        // 创建执行记录
-        $execution = TaskExecution::create([
-            'task_id' => $this->task->id,
-            'status' => 'running',
-            'start_time' => now()
-        ]);
+        // 查找现有的执行记录（由TaskService创建）
+        $execution = TaskExecution::where('task_id', $this->task->id)
+            ->where('status', 'running')
+            ->whereNull('end_time')
+            ->latest()
+            ->first();
+
+        if (!$execution) {
+            // 如果没有找到排队中的执行记录，创建一个新的
+            $execution = TaskExecution::create([
+                'task_id' => $this->task->id,
+                'status' => 'running',
+                'start_time' => now()
+            ]);
+        } else {
+            // 更新状态为运行中
+            $execution->update([
+                'status' => 'running',
+                'start_time' => now()
+            ]);
+        }
 
         try {
             // 根据任务类型选择执行器
@@ -86,7 +101,7 @@ class ExecuteTaskJob implements ShouldQueue
     /**
      * Handle a job failure.
      */
-    public function failed(Exception $exception): void
+    public function failed(\Throwable $exception): void
     {
         Log::error("任务最终执行失败: {$this->task->name}", [
             'error' => $exception->getMessage()
