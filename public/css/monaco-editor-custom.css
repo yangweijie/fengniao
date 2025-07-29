@@ -1,0 +1,132 @@
+/* Monaco Editor 自定义样式 */
+
+/* 设置Monaco Editor容器的最小高度 */
+.monaco-editor-container {
+    min-height: 500px !important;
+    height: 500px !important;
+}
+
+/* Monaco Editor主容器 */
+.monaco-editor {
+    min-height: 500px !important;
+    height: 500px !important;
+}
+
+/* 确保编辑器区域有足够的高度 */
+[data-field-wrapper] .monaco-editor-container,
+[data-field-wrapper] .monaco-editor {
+    min-height: 500px !important;
+    height: 500px !important;
+}
+
+/* 调整Monaco Editor的边框和圆角 */
+.monaco-editor {
+    border-radius: 6px;
+    border: 1px solid #374151;
+}
+
+/* 暗色主题下的边框颜色 */
+.dark .monaco-editor {
+    border-color: #4B5563;
+}
+
+/* 确保全屏模式下的样式 */
+.monaco-editor-fullscreen {
+    z-index: 9999 !important;
+}
+
+/* 调整Monaco Editor工具栏样式 */
+.monaco-editor-toolbar {
+    background-color: #1F2937;
+    border-bottom: 1px solid #374151;
+    padding: 8px 12px;
+    border-radius: 6px 6px 0 0;
+}
+
+/* 工具栏按钮样式 */
+.monaco-editor-toolbar button {
+    background-color: #374151;
+    color: #F9FAFB;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.monaco-editor-toolbar button:hover {
+    background-color: #4B5563;
+}
+
+/* 语言标签样式 */
+.monaco-editor-language-label {
+    background-color: #059669;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* 确保Monaco Editor在Filament表单中的正确显示 */
+.fi-fo-field-wrp .monaco-editor-container {
+    width: 100%;
+}
+
+/* 调整Monaco Editor的滚动条样式 */
+.monaco-editor .monaco-scrollable-element > .scrollbar > .slider {
+    background-color: #6B7280 !important;
+}
+
+.monaco-editor .monaco-scrollable-element > .scrollbar > .slider:hover {
+    background-color: #9CA3AF !important;
+}
+
+/* 确保代码提示框的样式 */
+.monaco-editor .suggest-widget {
+    border: 1px solid #374151 !important;
+    background-color: #1F2937 !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row {
+    background-color: #1F2937 !important;
+    color: #F9FAFB !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused {
+    background-color: #374151 !important;
+}
+
+/* 调整参数提示的样式 */
+.monaco-editor .parameter-hints-widget {
+    background-color: #1F2937 !important;
+    border: 1px solid #374151 !important;
+    color: #F9FAFB !important;
+}
+
+/* 确保错误提示的可见性 */
+.monaco-editor .zone-widget {
+    background-color: #1F2937 !important;
+    border: 1px solid #374151 !important;
+}
+
+/* 调整行号的样式 */
+.monaco-editor .line-numbers {
+    color: #6B7280 !important;
+}
+
+/* 当前行高亮 */
+.monaco-editor .current-line {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 选中文本的样式 */
+.monaco-editor .selected-text {
+    background-color: #3B82F6 !important;
+}
+
+/* 匹配括号的高亮 */
+.monaco-editor .bracket-match {
+    background-color: rgba(59, 130, 246, 0.3) !important;
+    border: 1px solid #3B82F6 !important;
+}

@@ -20,6 +20,7 @@ class Task extends Model
         'workflow_data',
         'domain',
         'is_exclusive',
+        'debug_mode',
         'login_config',
         'env_vars',
         'notification_config'
@@ -30,7 +31,8 @@ class Task extends Model
         'login_config' => 'array',
         'env_vars' => 'array',
         'notification_config' => 'array',
-        'is_exclusive' => 'boolean'
+        'is_exclusive' => 'boolean',
+        'debug_mode' => 'boolean'
     ];
 
     public function executions(): HasMany

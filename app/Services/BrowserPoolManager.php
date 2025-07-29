@@ -85,16 +85,17 @@ class BrowserPoolManager
     protected function createExclusiveInstance(Task $task): BrowserInstanceWrapper
     {
         $instanceId = 'exclusive_' . uniqid();
-        
+
         $instance = new BrowserInstanceWrapper([
             'id' => $instanceId,
             'isExclusive' => true,
             'primaryDomain' => $task->domain,
-            'maxTabs' => 1
+            'maxTabs' => 1,
+            'debugMode' => $task->debug_mode ?? false
         ]);
-        
-        Log::info("创建独占浏览器实例", ['instance_id' => $instanceId]);
-        
+
+        Log::info("创建独占浏览器实例", ['instance_id' => $instanceId, 'debug_mode' => $task->debug_mode]);
+
         return $instance;
     }
 
@@ -103,20 +104,21 @@ class BrowserPoolManager
         if (count($this->instances) >= $this->maxInstances) {
             throw new Exception("浏览器实例池已满，无法创建新实例");
         }
-        
+
         $instanceId = 'shared_' . uniqid();
-        
+
         $instance = new BrowserInstanceWrapper([
             'id' => $instanceId,
             'isExclusive' => false,
             'primaryDomain' => $task->domain,
-            'maxTabs' => 5
+            'maxTabs' => 5,
+            'debugMode' => $task->debug_mode ?? false
         ]);
-        
+
         $this->instances[$instanceId] = $instance;
-        
-        Log::info("创建共享浏览器实例", ['instance_id' => $instanceId]);
-        
+
+        Log::info("创建共享浏览器实例", ['instance_id' => $instanceId, 'debug_mode' => $task->debug_mode]);
+
         return $instance;
     }
 
@@ -167,6 +169,7 @@ class BrowserInstanceWrapper
     public bool $isExclusive;
     public ?string $primaryDomain;
     public int $maxTabs;
+    public bool $debugMode;
     protected array $activeTabs = [];
     protected string $status = 'idle';
     protected $mainDriver = null; // 主WebDriver实例
@@ -177,6 +180,7 @@ class BrowserInstanceWrapper
         $this->isExclusive = $config['isExclusive'] ?? false;
         $this->primaryDomain = $config['primaryDomain'] ?? null;
         $this->maxTabs = $config['maxTabs'] ?? 5;
+        $this->debugMode = $config['debugMode'] ?? false;
     }
 
     public function newTab(Task $task): TabSessionWrapper
@@ -283,8 +287,9 @@ class BrowserInstanceWrapper
         try {
             // 配置Chrome选项
             $options = new ChromeOptions();
-            $options->addArguments([
-                // '--headless', // 无头模式 - 已禁用以便调试
+
+            // 基础参数
+            $arguments = [
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
@@ -292,7 +297,17 @@ class BrowserInstanceWrapper
                 '--disable-web-security',
                 '--disable-features=VizDisplayCompositor',
                 '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            ]);
+            ];
+
+            // 根据任务的调试模式决定是否启用无头模式
+            if (!$this->debugMode) {
+                $arguments[] = '--headless';
+                Log::info("启用无头模式", ['instance_id' => $this->id]);
+            } else {
+                Log::info("启用有头模式（调试模式）", ['instance_id' => $this->id]);
+            }
+
+            $options->addArguments($arguments);
 
             $capabilities = DesiredCapabilities::chrome();
             $capabilities->setCapability(ChromeOptions::CAPABILITY, $options);

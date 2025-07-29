@@ -15,6 +15,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Tabs;
+use AbdelhamidErrahmouni\FilamentMonacoEditor\MonacoEditor;
 
 class TaskResource extends Resource
 {
@@ -72,15 +73,26 @@ class TaskResource extends Resource
 
                                 Toggle::make('is_exclusive')
                                     ->label('独占模式')
-                                    ->helperText('独占模式下任务将独占整个浏览器实例')
+                                    ->helperText('独占模式下任务将独占整个浏览器实例'),
+
+                                Toggle::make('debug_mode')
+                                    ->label('调试模式')
+                                    ->helperText('开启后显示浏览器界面，便于调试；关闭后使用无头模式')
+                                    ->default(false)
                             ]),
 
                         Tabs\Tab::make('脚本内容')
                             ->schema([
-                                Textarea::make('script_content')
+                                MonacoEditor::make('script_content')
                                     ->label('脚本内容')
-                                    ->rows(15)
-                                    ->placeholder('请输入Dusk脚本代码...')
+                                    ->language('php')
+                                    ->placeholderText('请输入Dusk脚本代码...')
+                                    ->helperText('支持PHP语法高亮和智能提示。常用Dusk方法：$browser->visit(), ->click(), ->type(), ->screenshot()')
+                                    ->theme('vs-dark')
+                                    ->fontSize('14px')
+                                    ->automaticLayout(true)
+                                    ->showFullScreenToggle(true)
+                                    ->lineNumbersMinChars(3)
                             ]),
 
                         Tabs\Tab::make('登录配置')
@@ -162,6 +174,14 @@ class TaskResource extends Resource
                     ->label('独占')
                     ->boolean(),
 
+                Tables\Columns\IconColumn::make('debug_mode')
+                    ->label('调试')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-eye')
+                    ->falseIcon('heroicon-o-eye-slash')
+                    ->trueColor('warning')
+                    ->falseColor('success'),
+
                 Tables\Columns\TextColumn::make('next_run_time')
                     ->label('下次运行时间')
                     ->getStateUsing(function ($record) {
@@ -211,18 +231,63 @@ class TaskResource extends Resource
                     ->icon('heroicon-o-play-circle')
                     ->color('primary')
                     ->action(function ($record) {
-                        $taskService = app(TaskService::class);
-                        $taskService->executeTask($record->id);
+                        try {
+                            $taskService = app(TaskService::class);
+                            $execution = $taskService->executeTask($record->id);
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('任务已开始执行')
+                                ->body("执行ID: {$execution->id}")
+                                ->success()
+                                ->send();
+
+                        } catch (\Exception $e) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('执行失败')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
                     })
                     ->requiresConfirmation()
                     ->modalHeading('执行任务')
-                    ->modalDescription('确定要立即执行此任务吗？'),
+                    ->modalDescription('确定要立即执行此任务吗？')
+                    ->visible(fn ($record) => !static::hasRunningExecution($record)),
+
+                Tables\Actions\Action::make('stop')
+                    ->label('停止')
+                    ->icon('heroicon-o-stop-circle')
+                    ->color('danger')
+                    ->action(function ($record) {
+                        try {
+                            $taskService = app(TaskService::class);
+                            $taskService->stopTask($record->id);
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('任务已停止')
+                                ->body('正在运行的任务已被停止')
+                                ->success()
+                                ->send();
+
+                        } catch (\Exception $e) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('停止失败')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('停止任务')
+                    ->modalDescription('确定要停止正在运行的任务吗？')
+                    ->visible(fn ($record) => static::hasRunningExecution($record)),
 
                 Tables\Actions\Action::make('logs')
                     ->label('日志')
                     ->icon('heroicon-o-document-text')
                     ->color('info')
-                    ->url(fn ($record) => route('filament.admin.resources.tasks.logs', $record)),
+                    ->openUrlInNewTab()
+                    ->url(fn ($record) => "/logs/task/{$record->id}"),
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -253,7 +318,8 @@ class TaskResource extends Resource
                         })
                         ->requiresConfirmation(),
                 ]),
-            ]);
+            ])
+            ->poll('5s'); // 每5秒自动刷新表格
     }
 
     public static function getRelations(): array
@@ -271,5 +337,16 @@ class TaskResource extends Resource
             'edit' => Pages\EditTask::route('/{record}/edit'),
             'logs' => Pages\ViewTaskLogs::route('/{record}/logs'),
         ];
+    }
+
+    /**
+     * 检查任务是否有正在运行的执行记录
+     */
+    protected static function hasRunningExecution($record): bool
+    {
+        return \App\Models\TaskExecution::where('task_id', $record->id)
+            ->where('status', 'running')
+            ->whereNull('end_time')
+            ->exists();
     }
 }

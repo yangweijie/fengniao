@@ -5,6 +5,7 @@ namespace App\Filament\Resources\TaskResource\Pages;
 use App\Filament\Resources\TaskResource;
 use App\Models\Task;
 use App\Models\TaskLog;
+use App\Models\TaskExecution;
 use Filament\Resources\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -12,6 +13,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\On;
 
 class ViewTaskLogs extends Page implements HasTable
 {
@@ -22,11 +24,23 @@ class ViewTaskLogs extends Page implements HasTable
     protected static string $view = 'filament.resources.task-resource.pages.view-task-logs';
 
     public Task $record;
+    public ?TaskExecution $latestExecution = null;
+    public bool $hasRunningExecution = false;
 
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
-        
+
+        // 获取最新的执行记录
+        $this->latestExecution = $this->record->executions()
+            ->latest('start_time')
+            ->first();
+
+        // 检查是否有正在运行的执行
+        $this->hasRunningExecution = $this->record->executions()
+            ->where('status', 'running')
+            ->exists();
+
         static::authorizeResourceAccess();
     }
 
@@ -57,13 +71,33 @@ class ViewTaskLogs extends Page implements HasTable
                         $query->where('task_id', $this->record->id);
                     })
                     ->with(['execution'])
-                    ->latest()
+                    ->when($this->latestExecution, function (Builder $query) {
+                        // 优先显示最新执行的日志
+                        $query->orderByRaw("CASE WHEN execution_id = ? THEN 0 ELSE 1 END", [$this->latestExecution->id]);
+                    })
+                    ->latest('created_at')
             )
             ->columns([
                 Tables\Columns\TextColumn::make('execution.id')
                     ->label('执行ID')
                     ->sortable()
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('execution.status')
+                    ->label('执行状态')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'running' => 'warning',
+                        'success' => 'success',
+                        'failed' => 'danger',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'running' => '运行中',
+                        'success' => '成功',
+                        'failed' => '失败',
+                        default => $state,
+                    }),
                 
                 Tables\Columns\TextColumn::make('level')
                     ->label('级别')
@@ -192,7 +226,7 @@ class ViewTaskLogs extends Page implements HasTable
                     }),
             ])
             ->defaultSort('created_at', 'desc')
-            ->poll('30s')
+            ->poll($this->hasRunningExecution ? '5s' : '30s') // 运行中的任务更频繁刷新
             ->emptyStateHeading('暂无日志')
             ->emptyStateDescription('此任务还没有生成任何日志记录。')
             ->emptyStateIcon('heroicon-o-document-text');
@@ -212,9 +246,38 @@ class ViewTaskLogs extends Page implements HasTable
                 ->icon('heroicon-o-arrow-path')
                 ->color('info')
                 ->action(function () {
+                    $this->refreshExecutionStatus();
                     $this->resetTable();
                 }),
+
+            \Filament\Actions\Action::make('realtime_logs')
+                ->label('实时日志')
+                ->icon('heroicon-o-eye')
+                ->color('success')
+                ->visible(fn () => $this->hasRunningExecution)
+                ->url(fn () => route('logs.task', $this->record->id))
+                ->openUrlInNewTab(),
         ];
+    }
+
+    public function refreshExecutionStatus(): void
+    {
+        // 重新获取最新的执行记录
+        $this->latestExecution = $this->record->executions()
+            ->latest('start_time')
+            ->first();
+
+        // 重新检查是否有正在运行的执行
+        $this->hasRunningExecution = $this->record->executions()
+            ->where('status', 'running')
+            ->exists();
+    }
+
+    #[On('task-execution-updated')]
+    public function onTaskExecutionUpdated(): void
+    {
+        $this->refreshExecutionStatus();
+        $this->resetTable();
     }
 
 

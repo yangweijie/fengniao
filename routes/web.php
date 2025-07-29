@@ -47,17 +47,29 @@ Route::get('/screenshot/{filename}', function (string $filename) {
 
 // 实时日志查看器路由
 Route::get('/logs/realtime/{executionId?}', function (?int $executionId = null) {
-    return view('logs.realtime', compact('executionId'));
+    return view('logs.terminal-logs', compact('executionId'));
 })->name('logs.realtime');
 
 Route::get('/logs/task/{taskId}', function (int $taskId) {
-    return view('logs.realtime', ['taskId' => $taskId, 'executionId' => null]);
+    return view('logs.terminal-logs', ['taskId' => $taskId, 'executionId' => null]);
 })->name('logs.task');
+
+// API路由用于日志数据
+Route::prefix('api')->group(function () {
+    Route::get('/tasks/{taskId}/logs', [App\Http\Controllers\Api\LogController::class, 'getTaskLogs']);
+    Route::get('/executions/{executionId}/logs', [App\Http\Controllers\Api\LogController::class, 'getExecutionLogs']);
+    Route::get('/tasks/{taskId}/logs/text', [App\Http\Controllers\Api\LogController::class, 'getLogText']);
+});
 
 // 截图预览功能测试页面
 Route::get('/test-screenshot', function () {
     return view('test-screenshot');
 })->name('test.screenshot');
+
+// 测试日志弹窗
+Route::get('/test-logs-modal', function () {
+    return view('test-logs-modal');
+});
 
 // 工作流编辑器路由
 Route::get('/workflow/editor/{workflowId?}', function (?int $workflowId = null) {

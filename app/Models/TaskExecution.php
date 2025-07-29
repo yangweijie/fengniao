@@ -53,4 +53,9 @@ class TaskExecution extends Model
     {
         return $this->status === 'failed';
     }
+
+    public function isCancelled(): bool
+    {
+        return $this->status === 'cancelled';
+    }
 }

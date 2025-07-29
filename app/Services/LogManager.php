@@ -7,6 +7,7 @@ use App\Models\TaskLog;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\DB;
 use App\Events\TaskLogCreated;
 use App\Events\ScreenshotCaptured;
 use Exception;
@@ -22,14 +23,22 @@ class LogManager
      */
     public function log(TaskExecution $execution, string $level, string $message, ?array $context = null, ?string $screenshotPath = null): TaskLog
     {
-        // 创建日志记录
-        $log = TaskLog::create([
+        // 创建日志记录，使用精确的微秒时间戳
+        $preciseTimestamp = $this->getPreciseTimestamp();
+
+        // 直接使用DB::insert来绕过Eloquent的时间戳处理
+        $logId = DB::table('task_logs')->insertGetId([
             'execution_id' => $execution->id,
             'level' => $level,
             'message' => $message,
-            'context' => $context,
-            'screenshot_path' => $screenshotPath
+            'context' => $context ? json_encode($context) : null,
+            'screenshot_path' => $screenshotPath,
+            'created_at' => $preciseTimestamp,
+            'updated_at' => $preciseTimestamp
         ]);
+
+        // 返回创建的模型实例
+        $log = TaskLog::find($logId);
 
         // 记录到Laravel日志
         Log::channel('single')->log($level, "[Task {$execution->task_id}] {$message}", $context ?? []);
@@ -195,6 +204,23 @@ class LogManager
         }
 
         return false;
+    }
+
+    /**
+     * 获取精确的微秒时间戳
+     */
+    protected function getPreciseTimestamp(): string
+    {
+        return self::mseDatetime();
+    }
+
+    /**
+     * 获取精确的微秒时间戳（静态方法）
+     */
+    public static function mseDatetime(): string
+    {
+        $now = \DateTime::createFromFormat('U.u', microtime(true));
+        return $now->format("Y-m-d H:i:s.u");
     }
 
     /**

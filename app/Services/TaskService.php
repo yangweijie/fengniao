@@ -75,6 +75,16 @@ class TaskService
     {
         $task = Task::findOrFail($id);
 
+        // 检查是否已有运行中的执行记录
+        $runningExecution = TaskExecution::where('task_id', $task->id)
+            ->where('status', 'running')
+            ->whereNull('end_time')
+            ->first();
+
+        if ($runningExecution) {
+            throw new \Exception("任务正在执行中，请等待当前执行完成。执行ID: {$runningExecution->id}");
+        }
+
         // 创建执行记录
         $execution = TaskExecution::create([
             'task_id' => $task->id,
@@ -86,6 +96,32 @@ class TaskService
         \App\Jobs\ExecuteTaskJob::dispatch($task);
 
         return $execution;
+    }
+
+    public function stopTask(int $id): bool
+    {
+        $task = Task::findOrFail($id);
+
+        // 查找运行中的执行记录
+        $runningExecutions = TaskExecution::where('task_id', $task->id)
+            ->where('status', 'running')
+            ->whereNull('end_time')
+            ->get();
+
+        if ($runningExecutions->isEmpty()) {
+            throw new \Exception("没有找到正在运行的任务执行记录");
+        }
+
+        // 停止所有运行中的执行
+        foreach ($runningExecutions as $execution) {
+            $execution->update([
+                'status' => 'cancelled',
+                'end_time' => now(),
+                'error_message' => '任务被用户手动停止'
+            ]);
+        }
+
+        return true;
     }
 
     public function getTaskExecutionHistory(int $taskId, int $limit = 10): Collection
