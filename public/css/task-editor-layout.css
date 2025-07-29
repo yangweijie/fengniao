@@ -1,0 +1,175 @@
+/* 任务编辑器布局优化 */
+
+/* 页面级别的宽度设置 */
+.fi-resource-edit-record-page,
+.fi-resource-create-record-page {
+    max-width: none !important;
+}
+
+/* 主内容区域宽度 */
+.fi-resource-edit-record-page .fi-main,
+.fi-resource-create-record-page .fi-main {
+    max-width: none !important;
+    width: 100% !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+}
+
+/* 表单容器宽度 */
+.fi-resource-edit-record-page .fi-form,
+.fi-resource-create-record-page .fi-form {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* 表单内容区域 */
+.fi-resource-edit-record-page .fi-form-content,
+.fi-resource-create-record-page .fi-form-content {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* 标签页组件宽度 */
+.fi-tabs {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+.fi-tabs-content {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* 字段包装器宽度 */
+.fi-fo-field-wrp {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* Monaco编辑器特定样式 */
+.fi-fo-monaco-editor {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* Monaco编辑器容器 */
+.monaco-editor-container {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 800px !important;
+}
+
+/* Monaco编辑器本体 */
+.monaco-editor {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* 确保编辑器在标签页中的宽度 */
+.fi-tabs-content .fi-fo-monaco-editor,
+.fi-tabs-content .monaco-editor-container,
+.fi-tabs-content .monaco-editor {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* 移除可能的最大宽度限制 */
+.fi-section,
+.fi-section-content,
+.fi-section-content-ctn {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* 表单字段组 */
+.fi-fo-field-group {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* 响应式调整 */
+@media (min-width: 1024px) {
+    .fi-resource-edit-record-page .fi-main,
+    .fi-resource-create-record-page .fi-main {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+    
+    .monaco-editor-container {
+        min-width: 1000px !important;
+    }
+}
+
+@media (min-width: 1280px) {
+    .fi-resource-edit-record-page .fi-main,
+    .fi-resource-create-record-page .fi-main {
+        padding-left: 3rem !important;
+        padding-right: 3rem !important;
+    }
+    
+    .monaco-editor-container {
+        min-width: 1200px !important;
+    }
+}
+
+@media (max-width: 1023px) {
+    .monaco-editor-container {
+        min-width: 600px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .fi-resource-edit-record-page .fi-main,
+    .fi-resource-create-record-page .fi-main {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    .monaco-editor-container {
+        min-width: 100% !important;
+    }
+    
+    .monaco-editor {
+        min-height: 300px !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .fi-resource-edit-record-page .fi-main,
+    .fi-resource-create-record-page .fi-main {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+}
+
+/* 确保侧边栏不影响主内容宽度 */
+.fi-sidebar-open .fi-main {
+    margin-left: 0 !important;
+}
+
+/* 移除可能的容器限制 */
+.container,
+.max-w-7xl,
+.max-w-6xl,
+.max-w-5xl,
+.max-w-4xl {
+    max-width: none !important;
+}
+
+/* 特殊处理：确保编辑器在所有容器中都是全宽 */
+.fi-resource-edit-record-page .monaco-editor-container,
+.fi-resource-create-record-page .monaco-editor-container {
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+/* 调试用：显示容器边界（可选，用于调试时启用） */
+/*
+.fi-main,
+.fi-form,
+.fi-tabs,
+.monaco-editor-container {
+    border: 1px solid red !important;
+}
+*/

@@ -97,6 +97,61 @@
     background-color: #374151 !important;
 }
 
+/* 页面宽度优化 - 任务编辑页面 */
+.fi-resource-edit-record-page .fi-form,
+.fi-resource-create-record-page .fi-form {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* 表单容器宽度调整 */
+.fi-resource-edit-record-page .fi-main,
+.fi-resource-create-record-page .fi-main {
+    max-width: none !important;
+    width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* 标签页容器宽度 */
+.fi-tabs {
+    width: 100% !important;
+}
+
+/* Monaco编辑器字段容器 */
+.fi-fo-monaco-editor {
+    width: 100% !important;
+}
+
+/* 编辑器wrapper */
+.monaco-editor-wrapper {
+    width: 100% !important;
+    min-width: 800px !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .monaco-editor-wrapper {
+        min-width: 600px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .monaco-editor {
+        min-height: 300px !important;
+    }
+
+    .monaco-editor-wrapper {
+        min-width: 100% !important;
+    }
+
+    .fi-resource-edit-record-page .fi-main,
+    .fi-resource-create-record-page .fi-main {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+}
+
 /* 调整参数提示的样式 */
 .monaco-editor .parameter-hints-widget {
     background-color: #1F2937 !important;

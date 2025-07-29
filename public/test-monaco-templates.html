@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monaco Editor Dusk Templates Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #container {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ccc;
+        }
+        .instructions {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #007acc;
+        }
+        .template-list {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .template-item {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #e8f4fd;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Monaco Editor Dusk Templates 测试</h1>
+    
+    <div class="instructions">
+        <h3>📋 使用说明：</h3>
+        <ol>
+            <li>在下面的编辑器中输入以下任意一个触发词</li>
+            <li>等待代码提示出现</li>
+            <li>选择模板并按Tab键插入</li>
+            <li>使用Tab键在参数之间跳转</li>
+        </ol>
+    </div>
+
+    <div id="container"></div>
+
+    <div class="template-list">
+        <h3>🚀 可用的模板触发词：</h3>
+        <div class="template-item"><strong>dusk-template</strong> - 基础脚本模板</div>
+        <div class="template-item"><strong>dusk-basic</strong> - 基础脚本模板</div>
+        <div class="template-item"><strong>dusk-login</strong> - 登录脚本模板</div>
+        <div class="template-item"><strong>dusk-form</strong> - 表单填写模板</div>
+        <div class="template-item"><strong>dusk-search</strong> - 搜索脚本模板</div>
+        <div class="template-item"><strong>dusk-scraping</strong> - 数据采集模板</div>
+        <div class="template-item"><strong>dusk-error</strong> - 错误处理模板</div>
+        <div class="template-item"><strong>template</strong> - 基础模板</div>
+        <div class="template-item"><strong>模板</strong> - 基础模板</div>
+        <div class="template-item"><strong>login</strong> - 登录模板</div>
+        <div class="template-item"><strong>form</strong> - 表单模板</div>
+        <div class="template-item"><strong>search</strong> - 搜索模板</div>
+    </div>
+
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+    <script src="/js/dusk-monaco-snippets.js"></script>
+    <script>
+        require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@latest/min/vs' }});
+        
+        require(['vs/editor/editor.main'], function() {
+            // 设置PHP语言支持
+            if (typeof setupPhpLanguageSupport === 'function') {
+                setupPhpLanguageSupport();
+            }
+            
+            // 设置Dusk代码片段
+            if (typeof setupDuskSnippets === 'function') {
+                setupDuskSnippets();
+            }
+            
+            // 创建编辑器
+            const editor = monaco.editor.create(document.getElementById('container'), {
+                value: '<?php\n\n// 在这里输入模板触发词，如: dusk-template, login, form 等\n// 然后选择提示并按Tab键插入模板\n\n',
+                language: 'php',
+                theme: 'vs-dark',
+                fontSize: 14,
+                automaticLayout: true,
+                suggestOnTriggerCharacters: true,
+                quickSuggestions: {
+                    other: true,
+                    comments: false,
+                    strings: false
+                }
+            });
+
+            // 强制触发代码提示
+            editor.onDidChangeModelContent(() => {
+                const position = editor.getPosition();
+                const model = editor.getModel();
+                const lineContent = model.getLineContent(position.lineNumber);
+                
+                // 如果输入了触发词，自动显示建议
+                if (lineContent.includes('dusk') || lineContent.includes('template') || 
+                    lineContent.includes('login') || lineContent.includes('form') || 
+                    lineContent.includes('search') || lineContent.includes('模板')) {
+                    editor.trigger('keyboard', 'editor.action.triggerSuggest', {});
+                }
+            });
+
+            console.log('Monaco Editor with Dusk templates loaded successfully!');
+        });
+    </script>
+</body>
+</html>

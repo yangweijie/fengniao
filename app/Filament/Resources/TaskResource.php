@@ -15,6 +15,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Support\Enums\MaxWidth;
 use AbdelhamidErrahmouni\FilamentMonacoEditor\MonacoEditor;
 
 class TaskResource extends Resource
@@ -83,11 +86,24 @@ class TaskResource extends Resource
 
                         Tabs\Tab::make('脚本内容')
                             ->schema([
+                                Actions::make([
+                                    Action::make('script_help')
+                                        ->label('脚本语法帮助')
+                                        ->icon('heroicon-o-question-mark-circle')
+                                        ->color('info')
+                                        ->size('sm')
+                                        ->modalHeading('脚本语法帮助')
+                                        ->modalWidth(MaxWidth::SevenExtraLarge)
+                                        ->modalContent(view('filament.modals.script-help-test'))
+                                        ->modalSubmitAction(false)
+                                        ->modalCancelActionLabel('关闭')
+                                ])->alignEnd(),
+
                                 MonacoEditor::make('script_content')
                                     ->label('脚本内容')
                                     ->language('php')
                                     ->placeholderText('请输入Dusk脚本代码...')
-                                    ->helperText('支持PHP语法高亮和智能提示。常用Dusk方法：$browser->visit(), ->click(), ->type(), ->screenshot()')
+                                    ->helperText('支持PHP语法高亮和智能提示。点击上方"脚本语法帮助"查看可用的宏方法和变量。')
                                     ->theme('vs-dark')
                                     ->fontSize('14px')
                                     ->automaticLayout(true)
