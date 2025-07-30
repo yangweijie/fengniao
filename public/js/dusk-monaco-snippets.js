@@ -166,11 +166,25 @@ function setupDuskSnippets() {
                     documentation: '等待并获取元素文本'
                 },
                 {
+                    label: '$browser->waitForLocation',
+                    kind: monaco.languages.CompletionItemKind.Method,
+                    insertText: '$browser->waitForLocation(\'${1:https://example.com/*}\', ${2:30});',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: '等待URL变化（支持通配符匹配）'
+                },
+                {
+                    label: '$browser->waitForLocationContains',
+                    kind: monaco.languages.CompletionItemKind.Method,
+                    insertText: '$browser->waitForLocationContains(\'${1:dashboard}\', ${2:30});',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: '等待URL包含特定字符串'
+                },
+                {
                     label: '$browser->waitForUrlContains',
                     kind: monaco.languages.CompletionItemKind.Method,
                     insertText: '$browser->waitForUrlContains(\'${1:needle}\', ${2:10});',
                     insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    documentation: '等待URL包含特定字符串'
+                    documentation: '等待URL包含特定字符串（已废弃，推荐使用waitForLocationContains）'
                 },
                 {
                     label: '$browser->waitForTitle',
@@ -388,11 +402,11 @@ function setupDuskSnippets() {
                         '$browser->visit(\'${1:https://example.com/login}\')',
                         '        ->waitForPageLoad()',
                         '        ->smartLogin(\'${2:#email}\', \'${3:#password}\', \'${4:user@example.com}\', \'${5:password123}\')',
-                        '        ->waitForUrlContains(\'${6:/dashboard}\')',
+                        '        ->waitForLocation(\'${6:https://example.com/dashboard*}\')',
                         '        ->screenshotWithTimestamp(\'login_success\');'
                     ].join('\n'),
                     insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    documentation: '登录脚本模板'
+                    documentation: '登录脚本模板（使用URL变化验证登录成功）'
                 },
                 {
                     label: 'dusk-form',

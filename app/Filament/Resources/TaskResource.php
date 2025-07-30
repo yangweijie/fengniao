@@ -113,11 +113,38 @@ class TaskResource extends Resource
 
                         Tabs\Tab::make('登录配置')
                             ->schema([
+                                Actions::make([
+                                    Action::make('login_config_help')
+                                        ->label('使用说明')
+                                        ->icon('heroicon-o-question-mark-circle')
+                                        ->color('info')
+                                        ->size('sm')
+                                        ->modalHeading('登录配置使用指南')
+                                        ->modalWidth(MaxWidth::SevenExtraLarge)
+                                        ->modalContent(view('filament.modals.login-config-help'))
+                                        ->modalSubmitAction(false)
+                                        ->modalCancelActionLabel('关闭')
+                                ])->alignEnd(),
+
                                 KeyValue::make('login_config')
                                     ->label('登录配置')
                                     ->keyLabel('配置项')
                                     ->valueLabel('值')
-                                    ->helperText('配置自动登录相关信息')
+                                    ->helperText('配置自动登录相关信息。点击上方"使用说明"查看详细配置方法和示例。')
+                                    ->addActionLabel('添加配置项')
+                                    ->reorderable()
+                                    ->deletable()
+                                    ->editableKeys()
+                                    ->editableValues()
+                                    ->default([
+                                        'login_url' => '',
+                                        'username' => '',
+                                        'password' => '',
+                                        'username_selector' => '',
+                                        'password_selector' => '',
+                                        'login_button_selector' => '',
+                                        'success_url' => '',
+                                    ])
                             ]),
 
                         Tabs\Tab::make('环境变量')

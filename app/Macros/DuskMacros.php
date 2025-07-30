@@ -98,6 +98,46 @@ class DuskMacros
             return $this;
         });
 
+        // 等待URL变化（支持通配符匹配）
+        Browser::macro('waitForLocation', function (string $expectedUrl, int $timeout = 30) {
+            $wait = new WebDriverWait($this->driver, $timeout);
+
+            try {
+                $wait->until(function () use ($expectedUrl) {
+                    $currentUrl = $this->driver->getCurrentURL();
+
+                    // 支持通配符匹配
+                    if (strpos($expectedUrl, '*') !== false) {
+                        $pattern = str_replace(['*', '/'], ['.*', '\/'], $expectedUrl);
+                        return preg_match('/^' . $pattern . '$/i', $currentUrl);
+                    }
+
+                    // 精确匹配
+                    return $currentUrl === $expectedUrl;
+                });
+                return $this;
+            } catch (TimeoutException $e) {
+                $currentUrl = $this->driver->getCurrentURL();
+                throw new \Exception("等待URL变化超时。期望: $expectedUrl, 当前: $currentUrl");
+            }
+        });
+
+        // 等待URL包含特定字符串
+        Browser::macro('waitForLocationContains', function (string $substring, int $timeout = 30) {
+            $wait = new WebDriverWait($this->driver, $timeout);
+
+            try {
+                $wait->until(function () use ($substring) {
+                    $currentUrl = $this->driver->getCurrentURL();
+                    return strpos($currentUrl, $substring) !== false;
+                });
+                return $this;
+            } catch (TimeoutException $e) {
+                $currentUrl = $this->driver->getCurrentURL();
+                throw new \Exception("等待URL包含 '$substring' 超时。当前URL: $currentUrl");
+            }
+        });
+
         // 等待Ajax请求完成
         Browser::macro('waitForAjax', function (int $timeout = 30) {
             $wait = new WebDriverWait($this->driver, $timeout);
