@@ -149,11 +149,35 @@ class TaskResource extends Resource
 
                         Tabs\Tab::make('环境变量')
                             ->schema([
+                                Actions::make([
+                                    Action::make('env_vars_help')
+                                        ->label('使用说明')
+                                        ->icon('heroicon-o-question-mark-circle')
+                                        ->color('info')
+                                        ->size('sm')
+                                        ->modalHeading('环境变量使用指南')
+                                        ->modalWidth(MaxWidth::SevenExtraLarge)
+                                        ->modalContent(view('filament.modals.env-vars-help'))
+                                        ->modalSubmitAction(false)
+                                        ->modalCancelActionLabel('关闭')
+                                ])->alignEnd(),
+
                                 KeyValue::make('env_vars')
                                     ->label('环境变量')
                                     ->keyLabel('变量名')
                                     ->valueLabel('变量值')
-                                    ->helperText('任务执行时的环境变量')
+                                    ->helperText('任务执行时的环境变量。点击上方"使用说明"查看详细配置方法和安全实践。')
+                                    ->addActionLabel('添加环境变量')
+                                    ->reorderable()
+                                    ->deletable()
+                                    ->editableKeys()
+                                    ->editableValues()
+                                    ->default([
+                                        'API_KEY' => '',
+                                        'BASE_URL' => '',
+                                        'TIMEOUT' => '30',
+                                        'DEBUG_MODE' => 'false',
+                                    ])
                             ]),
 
                         Tabs\Tab::make('通知配置')
