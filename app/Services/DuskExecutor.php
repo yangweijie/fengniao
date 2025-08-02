@@ -166,6 +166,8 @@ class DuskExecutor
                     throw new Exception('脚本执行错误: ' . \$e->getMessage());
                 }
             ";
+
+            extract(['task_id' => $$execution->task_id]);
             
             // 执行脚本
             eval($scriptWrapper);

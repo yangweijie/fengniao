@@ -67,6 +67,8 @@ class ApiExecutor
                     throw new Exception('API脚本执行错误: ' . \$e->getMessage());
                 }
             ";
+
+            extract(['task_id' => $$execution->task_id]);
             
             // 执行脚本
             $result = eval($scriptWrapper);

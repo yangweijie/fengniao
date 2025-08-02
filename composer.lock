@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0361cbeef62f45f8fa763b82b990fe74",
+    "content-hash": "a86fd1e2e58db045035988fda99ead06",
     "packages": [
         {
             "name": "abdelhamiderrahmouni/filament-monaco-editor",
@@ -2381,6 +2381,70 @@
                 "serializable"
             ],
             "time": "2025-01-24T15:42:37+00:00"
+        },
+        {
+            "name": "laravel/telescope",
+            "version": "v5.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/telescope.git",
+                "reference": "bc3df85f1d5653c9473f1f858c98309345ebd1ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://mirrors.huaweicloud.com/repository/php/laravel/telescope/v5.4.0/laravel-telescope-v5.4.0.zip",
+                "reference": "bc3df85f1d5653c9473f1f858c98309345ebd1ca",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "laravel/framework": "^8.37|^9.0|^10.0|^11.0",
+                "php": "^8.0",
+                "symfony/console": "^5.3|^6.0|^7.0",
+                "symfony/var-dumper": "^5.0|^6.0|^7.0"
+            },
+            "require-dev": {
+                "ext-gd": "*",
+                "guzzlehttp/guzzle": "^6.0|^7.0",
+                "laravel/octane": "^1.4|^2.0|dev-develop",
+                "orchestra/testbench": "^6.40|^7.37|^8.17|^9.0",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^9.0|^10.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Telescope\\TelescopeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Telescope\\": "src/",
+                    "Laravel\\Telescope\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                },
+                {
+                    "name": "Mohamed Said",
+                    "email": "mohamed@laravel.com"
+                }
+            ],
+            "description": "An elegant debug assistant for the Laravel framework.",
+            "keywords": [
+                "debugging",
+                "laravel",
+                "monitoring"
+            ],
+            "time": "2025-01-24T15:55:16+00:00"
         },
         {
             "name": "laravel/tinker",

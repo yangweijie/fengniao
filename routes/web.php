@@ -3,9 +3,25 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\AuthController;
+
 Route::get('/', function () {
     return view('welcome');
 });
+
+// 登录相关路由
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// 测试页面路由（登录保护）
+Route::get('/test-page', function () {
+    if (!Session::has('user')) {
+        return redirect()->route('login');
+    }
+    return view('test-page');
+})->name('test-page');
 
 // 健康检查路由
 Route::get('/health', function () {

@@ -11,6 +11,7 @@
         "filament/filament": "^3.2",
         "filament/spatie-laravel-media-library-plugin": "^3.2",
         "laravel/framework": "^11.31",
+        "laravel/telescope": "^5.4",
         "laravel/tinker": "^2.9",
         "predis/predis": "^2.3",
         "pusher/pusher-php-server": "^7.2"
@@ -30,7 +31,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/TaskHelper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -61,7 +65,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "laravel/telescope"
+            ]
         }
     },
     "config": {
